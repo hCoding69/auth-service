@@ -25,16 +25,9 @@ public class PermissionService {
         this.jwtService = jwtService;
     }
 
-    public ResponseEntity<?> getPermissions(String authHeader){
+    public ResponseEntity<?> getPermissions(){
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Missing or invalid Authorization header");
-        }
 
-        String token = authHeader.substring(7);
-        if (!jwtService.validateInternalToken(token)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
-        }
         List<PermissionDTO> permissions = permissionRepository.findAllOrderByName();
         if(permissions.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

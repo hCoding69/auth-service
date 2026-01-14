@@ -20,33 +20,36 @@ public class RoleController {
 
     @GetMapping
     public ResponseEntity<?> getRoles(
-            @RequestHeader("Authorization") String authHeader
     ){
-        return roleService.getRoles(authHeader);
+        return roleService.getRoles();
+    }
+
+    @GetMapping("/with-permissions")
+    public ResponseEntity<?> getAllRolesWithPermissions(){
+        return roleService.getRolesWithPermissions(null);
     }
 
     @GetMapping("/with-permissions/{id}")
-    public ResponseEntity<?> getRolesWithPermissions(@RequestHeader("Authorization") String authHeader,
-                                                     @PathVariable(required = false) Long id){
-        return roleService.getRolesWithPermissions(authHeader, id);
+    public ResponseEntity<?> getRoleWithPermissions(@PathVariable Long id){
+        return roleService.getRolesWithPermissions(id);
     }
 
 
     @PostMapping
-    public ResponseEntity<?> createRole(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody RoleDTO req){
-        return roleService.createRole(authHeader, req);
+    public ResponseEntity<?> createRole(@Valid @RequestBody RoleDTO req){
+        return roleService.createRole( req);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRole(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<?> updateRole(
                                         @PathVariable Long id, @Valid @RequestBody RoleDTO req
                                         ){
-        return roleService.updateRole(authHeader, id, req);
+        return roleService.updateRole(id, req);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteRole(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<?> deleteRole(
                                         @PathVariable Long id){
-        return roleService.deleteRole(authHeader, id);
+        return roleService.deleteRole(id);
     }
 }

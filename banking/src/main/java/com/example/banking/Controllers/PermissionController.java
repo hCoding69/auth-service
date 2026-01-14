@@ -19,8 +19,8 @@ public class PermissionController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getPermissions(@RequestHeader("Authorization") String authHeader){
-        return this.permissionService.getPermissions(authHeader);
+    public ResponseEntity<?> getPermissions(){
+        return this.permissionService.getPermissions();
     }
 
     @PostMapping()

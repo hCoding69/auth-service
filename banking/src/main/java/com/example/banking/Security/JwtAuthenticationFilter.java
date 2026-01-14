@@ -37,15 +37,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String jwt = null;
 
-        // 1️⃣ Récupérer le JWT depuis le cookie "accessToken"
-        if (request.getCookies() != null) {
+
+// 1️⃣ Priorité : Authorization header (microservices)
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+            System.out.println("Authorization header = " + request.getHeader("Authorization"));
+
+        }
+
+// 2️⃣ Sinon : cookie accessToken (frontend)
+        if (jwt == null && request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                System.out.println("Cookie reçu: " + cookie.getName() + "=" + cookie.getValue());
                 if ("accessToken".equals(cookie.getName())) {
                     jwt = cookie.getValue();
+                    break;
                 }
             }
         }
+
 
         if (jwt == null) {
             filterChain.doFilter(request, response);

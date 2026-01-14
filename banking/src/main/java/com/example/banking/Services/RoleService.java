@@ -17,40 +17,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final JwtService jwtService;
 
     public RoleService(RoleRepository roleRepository, UserRepository userRepository, JwtService jwtService) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
-        this.jwtService = jwtService;
     }
 
-    public ResponseEntity<?> checkInternalAuth(String authHeader){
-        if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            return ResponseEntity.badRequest().body("Token Not Found");
-        }
 
-        String token = authHeader.substring(7);
-        if(!jwtService.validateInternalToken(token)){
-            return ResponseEntity.badRequest().body("Token Not Valid");
-        }
 
-        return ResponseEntity.ok(true);
-    }
-
-    public ResponseEntity<?> getRoles(String authHeader){
-
-        ResponseEntity<?> authResponse = checkInternalAuth(authHeader);
-        if (authResponse.getStatusCode() != HttpStatus.OK) {
-            return authResponse;
-        }
-
+    public ResponseEntity<?> getRoles(){
 
         List<Role> roles = roleRepository.findAll();
 
@@ -58,16 +40,22 @@ public class RoleService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No roles found");
         }
 
-        return ResponseEntity.ok(roles);
+        List<RoleDTO> rolesDto = roleRepository.findAll()
+                .stream()
+                .map(role -> new RoleDTO(
+                        role.getId(),
+                        role.getName(),
+                        role.getDescription()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(rolesDto);
 
     }
 
-    public ResponseEntity<?> getRolesWithPermissions(String authHeader, Long id){
-        ResponseEntity<?> authResponse = this.checkInternalAuth(authHeader);
+    public ResponseEntity<?> getRolesWithPermissions(Long id){
 
-        if(authResponse.getStatusCode()!= HttpStatus.OK){
-            return authResponse;
-        }
+
 
         if(id != null){
             Role role = roleRepository.findById(id).orElse(null);
@@ -86,11 +74,8 @@ public class RoleService {
         return ResponseEntity.ok(roles);
     }
 
-    public ResponseEntity<?> createRole(String authHeader, RoleDTO req){
-        ResponseEntity<?> authResponse = this.checkInternalAuth(authHeader);
-        if(authResponse.getStatusCode()!= HttpStatus.OK){
-            return authResponse;
-        }
+    public ResponseEntity<?> createRole(RoleDTO req){
+
 
         String normalizedName = req.getName().trim().toUpperCase();
         if(roleRepository.existsByName(normalizedName)){
@@ -107,12 +92,8 @@ public class RoleService {
         }
     }
 
-    public ResponseEntity<?> updateRole(String authHeader, Long id, RoleDTO req) {
+    public ResponseEntity<?> updateRole(Long id, RoleDTO req) {
 
-        ResponseEntity<?> authResponse = this.checkInternalAuth(authHeader);
-        if (authResponse.getStatusCode() != HttpStatus.OK) {
-            return authResponse;
-        }
 
         Role roleToUpdate = roleRepository.findById(id).orElse(null);
         if (roleToUpdate == null) {
@@ -155,12 +136,9 @@ public class RoleService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> deleteRole(String authHeader, Long id ){
+    public ResponseEntity<?> deleteRole(Long id ){
 
-        ResponseEntity<?> authResponse = this.checkInternalAuth(authHeader);
-        if(authResponse.getStatusCode()!= HttpStatus.OK){
-            return authResponse;
-        }
+
 
         Role role = roleRepository.findById(id).orElse(null);
 
