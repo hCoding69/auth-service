@@ -2,11 +2,10 @@ package com.example.banking.Services;
 
 import com.example.banking.Models.Role;
 import com.example.banking.Models.User;
+import com.example.banking.Repositories.ResponseRepository;
 import com.example.banking.Repositories.RoleRepository;
 import com.example.banking.Repositories.UserRepository;
-import com.example.banking.Services.dto.AssignRoleRequest;
-import com.example.banking.Services.dto.CreateRoleRequest;
-import com.example.banking.Services.dto.RoleDTO;
+import com.example.banking.Services.dto.*;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,10 +21,12 @@ public class RoleService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ResponseRepository responseRepository;
 
-    public RoleService(RoleRepository roleRepository, UserRepository userRepository, JwtService jwtService) {
+    public RoleService(RoleRepository roleRepository, UserRepository userRepository, JwtService jwtService, ResponseRepository responseRepository) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.responseRepository = responseRepository;
     }
 
 
@@ -62,16 +61,42 @@ public class RoleService {
             if(role == null){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Role Not Found");
             } else{
-                return ResponseEntity.ok(role);
+                Set<PermissionDTO> permissionsDto = role.getPermissions().stream()
+                        .map(p -> new PermissionDTO(p.getId(), p.getName(), p.getDescription()))
+                        .collect(Collectors.toSet());
+
+                RolesWithPermissionsDTO response = new RolesWithPermissionsDTO(
+                        role.getId(),
+                        role.getName(),
+                        role.getDescription(),
+                        permissionsDto
+                );
+                return ResponseEntity.ok(response);
             }
         }
         List<Role> roles = roleRepository.findAll();
 
-        if(roles.isEmpty()){
+        if (roles.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Roles is Empty");
         }
 
-        return ResponseEntity.ok(roles);
+// Conversion List<Role> -> List<RolesWithPermissionsDTO>
+        List<RolesWithPermissionsDTO> rolesDto = roles.stream()
+                .map(role -> {
+                    Set<PermissionDTO> permissionsDto = role.getPermissions().stream()
+                            .map(p -> new PermissionDTO(p.getId(), p.getName(), p.getDescription()))
+                            .collect(Collectors.toSet());
+                    return new RolesWithPermissionsDTO(
+                            role.getId(),
+                            role.getName(),
+                            role.getDescription(),
+                            permissionsDto
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(rolesDto);
+
     }
 
     public ResponseEntity<?> createRole(RoleDTO req){
