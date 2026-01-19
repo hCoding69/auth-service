@@ -24,25 +24,25 @@ public class PermissionController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> createPermission(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<?> createPermission(
                                               @Valid @RequestBody PermissionDTO request
                                               ){
-        return this.permissionService.createPermission(authHeader, request);
+        return this.permissionService.createPermission(request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editPermission(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<?> editPermission(
                                             @Valid @RequestBody PermissionDTO request,
                                             @PathVariable Long id
                                             ){
-        return this.permissionService.updatePermission(id, request, authHeader);
+        return this.permissionService.updatePermission(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePermission(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<?> deletePermission(
                                               @PathVariable Long id
     ){
-        return this.permissionService.deletePermission(id, authHeader);
+        return this.permissionService.deletePermission(id);
     }
 
 

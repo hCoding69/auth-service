@@ -14,7 +14,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
 
     @Query("Select new com.example.banking.Services.dto.RoleDTO(r.id, r.name, r.description)" +
-            "From Role r Order By name")
+            " From Role r Order By r.name")
     List<RoleDTO> findAllRolesOrderByName();
 
 

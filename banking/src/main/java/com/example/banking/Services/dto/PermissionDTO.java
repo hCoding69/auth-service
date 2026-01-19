@@ -1,5 +1,6 @@
 package com.example.banking.Services.dto;
 
+import com.example.banking.Models.Permission;
 import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 
 @Data
-public class PermissionDTO {
+public class PermissionDTO  {
     private Long id;
 
     @NotNull

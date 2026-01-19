@@ -38,16 +38,10 @@ public class PermissionService {
         }
     }
 
-    public ResponseEntity<?> createPermission(String authHeader, PermissionDTO request){
+    public ResponseEntity<?> createPermission( PermissionDTO request){
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Missing or invalid Authorization header");
-        }
 
-        String token = authHeader.substring(7);
-        if (!jwtService.validateInternalToken(token)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
-        }
+
 
         Permission permission = new Permission();
         permission.setName(request.getName());
@@ -64,14 +58,8 @@ public class PermissionService {
 
     }
 
-    public ResponseEntity<?> updatePermission(Long id, PermissionDTO request, String authHeader){
-        if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Missing or invalid Authorization header");
-        }
-        String token = authHeader.substring(7);
-        if(!jwtService.validateInternalToken(token)){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
-        }
+    public ResponseEntity<?> updatePermission(Long id, PermissionDTO request){
+
         boolean updated = false;
         Permission existedPermission = permissionRepository.findById(id).orElse(null);
 
@@ -105,18 +93,7 @@ public class PermissionService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> deletePermission(Long id, String authHeader) {
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Missing or invalid Authorization header"));
-        }
-
-        String token = authHeader.substring(7);
-        if (!jwtService.validateInternalToken(token)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Not authorized"));
-        }
+    public ResponseEntity<?> deletePermission(Long id) {
 
         if (!permissionRepository.existsById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
