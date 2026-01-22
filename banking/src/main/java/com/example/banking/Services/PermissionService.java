@@ -39,10 +39,6 @@ public class PermissionService {
     }
 
     public ResponseEntity<?> createPermission( PermissionDTO request){
-
-
-
-
         Permission permission = new Permission();
         permission.setName(request.getName());
         permission.setDescription(request.getDescription());

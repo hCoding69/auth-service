@@ -1,5 +1,6 @@
 package com.example.banking.Services;
 
+import com.example.banking.Models.Permission;
 import com.example.banking.Models.Role;
 import com.example.banking.Services.dto.AuthResponse;
 import com.example.banking.Services.dto.CustomUserDetails;
@@ -48,15 +49,26 @@ public class JwtService {
 
     private Map<String, Object> getClaims(CustomUserDetails user) {
         Map<String, Object> claims = new HashMap<>();
+
         claims.put("userId", user.getId());
         claims.put("email", user.getEmail());
+
         // ✅ Les rôles sous forme de String
         claims.put("roles", user.getRoles()
                 .stream()
                 .map(Role::getName)
                 .toList());
+
+        // ✅ Les permissions/authorities sous forme de String
+        claims.put("authorities", user.getAuthorities()
+                .stream()
+                .map(auth -> auth.getAuthority())
+                .toList());
+
+
         return claims;
     }
+
 
 
 
